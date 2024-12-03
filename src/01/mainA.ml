@@ -1,6 +1,6 @@
 open Lib
 
-(* Split a string by whitespace (handles multiple spaces or tabs) and parse as two integers *)
+(* Parse a single line into a pair of integers *)
 let parse_line line =
   try
     let parts = Str.split (Str.regexp "[ \t]+") (String.trim line) in
@@ -11,8 +11,24 @@ let parse_line line =
     Printf.eprintf "Failed to parse line: '%s'\n%!" line;
     raise (Failure "int_of_string")
 
-let () =
-  let lines = Utils.read_file "./src/01/input.txt" in
+(* Validate that two lists have the same length *)
+let validate_lists_length lst1 lst2 =
+  if List.length lst1 <> List.length lst2 then
+    failwith "Error: The two lists must have the same size."
+
+(* Sort and pair two lists of integers *)
+let sort_and_combine_lists lst1 lst2 =
+  let sorted_lst1 = List.sort compare lst1 in
+  let sorted_lst2 = List.sort compare lst2 in
+  validate_lists_length sorted_lst1 sorted_lst2;
+  List.combine sorted_lst1 sorted_lst2
+
+(* Compute the absolute distances for a list of pairs *)
+let compute_distances pairs = List.map (fun (x, y) -> abs (x - y)) pairs
+
+(* Parse the file, compute and return the sum of distances *)
+let compute_sum_of_distances file_path =
+  let lines = Utils.read_file file_path in
 
   (* Parse lines into pairs of integers *)
   let parsed_pairs =
@@ -21,30 +37,17 @@ let () =
       lines
   in
 
-  (* Split into two separate lists *)
-  let col1, col2 =
-    List.fold_right
-      (fun (a, b) (acc1, acc2) -> (a :: acc1, b :: acc2))
-      parsed_pairs ([], [])
-  in
+  (* Split parsed pairs into two separate lists *)
+  let col1, col2 = List.split parsed_pairs in
 
-  (* Sort the lists in ascending order *)
-  let sorted_col1 = List.sort compare col1 in
-  let sorted_col2 = List.sort compare col2 in
+  (* Sort the lists, combine them into pairs, and compute distances *)
+  let combined_pairs = sort_and_combine_lists col1 col2 in
+  let distances = compute_distances combined_pairs in
 
-  (* Validate that the two lists have the same size *)
-  if List.length sorted_col1 <> List.length sorted_col2 then
-    failwith "Error: The two lists must have the same size.";
+  (* Return the sum of distances *)
+  List.fold_left ( + ) 0 distances
 
-  (* Combine the lists into pairs *)
-  let combined_pairs = List.combine sorted_col1 sorted_col2 in
-
-  (* Compute the absolute distances for each pair *)
-  let distances = List.map (fun (x, y) -> abs (x - y)) combined_pairs in
-
-  (* Compute the sum of distances *)
-  let sum_of_distances = List.fold_left ( + ) 0 distances in
-
-  (* Print the distances and their sum *)
-  Printf.printf "Sum of distances: %d\n" sum_of_distances
+let () =
+  let sum = compute_sum_of_distances "./src/01/input.txt" in
+  Printf.printf "Sum of distances: %d\n" sum
 
