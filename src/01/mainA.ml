@@ -10,7 +10,6 @@
 
 open Lib
 
-(* Parse a single line into a pair of integers *)
 let parse_line line =
   try
     let parts = Str.split (Str.regexp "[ \t]+") (String.trim line) in

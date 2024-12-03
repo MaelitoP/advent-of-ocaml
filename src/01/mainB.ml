@@ -10,7 +10,6 @@
 
 open Lib
 
-(* Parse a single line into a pair of integers *)
 let parse_line line =
   try
     let parts = Str.split (Str.regexp "[ \t]+") (String.trim line) in
@@ -33,7 +32,6 @@ let count_occurrences lst =
 let compute_sum file_path =
   let lines = Utils.read_file file_path in
 
-  (* Parse lines into pairs of integers *)
   let parsed_pairs =
     List.filter_map
       (fun line -> try Some (parse_line line) with Failure _ -> None)

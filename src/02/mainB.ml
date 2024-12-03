@@ -39,15 +39,31 @@ let is_strictly_decreasing sequence =
 let are_differences_within_range sequence =
   let rec check = function
     | x :: y :: rest ->
-        let difference = abs (x - y) in
-        if difference >= 1 && difference <= 3 then check (y :: rest) else false
+        let diff = abs (x - y) in
+        if diff >= 1 && diff <= 3 then check (y :: rest) else false
     | _ -> true
   in
   check sequence
 
-let is_safe_report report =
+let is_report_safe report =
   (is_strictly_increasing report || is_strictly_decreasing report)
   && are_differences_within_range report
+
+let can_be_made_safe_by_removal report =
+  let rec attempt_removal index =
+    if index >= List.length report then false
+    else
+      let modified_report =
+        List.mapi (fun i x -> if i = index then None else Some x) report
+        |> List.filter_map Fun.id
+      in
+      if is_report_safe modified_report then true
+      else attempt_removal (index + 1)
+  in
+  attempt_removal 0
+
+let is_report_safe_with_removal report =
+  is_report_safe report || can_be_made_safe_by_removal report
 
 let () =
   let input_lines = Utils.read_file "./src/02/input.txt" in
@@ -55,7 +71,8 @@ let () =
 
   let safe_reports_count =
     List.fold_left
-      (fun count report -> if is_safe_report report then count + 1 else count)
+      (fun count report ->
+        if is_report_safe_with_removal report then count + 1 else count)
       0 reports
   in
 
