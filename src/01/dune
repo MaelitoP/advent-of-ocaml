@@ -1,0 +1,9 @@
+(executable
+ (name mainA)
+ (modules MainA)
+ (libraries str lib))
+
+(rule
+ (alias runA)
+ (deps input.txt)
+ (action (run ./mainA.exe)))
