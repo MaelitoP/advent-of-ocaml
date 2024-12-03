@@ -1,3 +1,13 @@
+(*
+   Example input format:
+   $ shuf -n 5 input.txt
+   99164   94333
+   25988   11393
+   75123   37015
+   11623   94333
+   12186   68323
+*)
+
 open Lib
 
 (* Parse a single line into a pair of integers *)

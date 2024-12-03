@@ -1,3 +1,13 @@
+(*
+   Example input format:
+   $ shuf -n 5 input.txt
+   99164   94333
+   25988   11393
+   75123   37015
+   11623   94333
+   12186   68323
+*)
+
 open Lib
 
 (* Parse a single line into a pair of integers *)
@@ -5,7 +15,7 @@ let parse_line line =
   try
     let parts = Str.split (Str.regexp "[ \t]+") (String.trim line) in
     match parts with
-    | [col1; col2] -> (int_of_string col1, int_of_string col2)
+    | [ col1; col2 ] -> (int_of_string col1, int_of_string col2)
     | _ -> failwith "Invalid line format"
   with Failure _ ->
     Printf.eprintf "Failed to parse line: '%s'\n%!" line;
@@ -13,10 +23,11 @@ let parse_line line =
 
 let count_occurrences lst =
   let table = Hashtbl.create (List.length lst) in
-  List.iter (fun value ->
-    let count = try Hashtbl.find table value with Not_found -> 0 in
-    Hashtbl.replace table value (count + 1)
-  ) lst;
+  List.iter
+    (fun value ->
+      let count = try Hashtbl.find table value with Not_found -> 0 in
+      Hashtbl.replace table value (count + 1))
+    lst;
   table
 
 let compute_sum file_path =
@@ -43,7 +54,7 @@ let compute_sum file_path =
       col1
   in
 
-  List.fold_left (+) 0 results
+  List.fold_left ( + ) 0 results
 
 let () =
   let sum = compute_sum "./src/01/input.txt" in
