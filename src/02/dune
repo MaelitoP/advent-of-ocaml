@@ -1,0 +1,5 @@
+(executable
+ (name mainA)
+ (modules MainA)
+ (libraries str lib))
+
