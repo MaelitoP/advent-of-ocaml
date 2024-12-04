@@ -45,7 +45,7 @@ let are_differences_within_range sequence =
   in
   check sequence
 
-let is_report_safe report =
+let is_safe report =
   (is_strictly_increasing report || is_strictly_decreasing report)
   && are_differences_within_range report
 
@@ -57,13 +57,13 @@ let can_be_made_safe_by_removal report =
         List.mapi (fun i x -> if i = index then None else Some x) report
         |> List.filter_map Fun.id
       in
-      if is_report_safe modified_report then true
+      if is_safe modified_report then true
       else attempt_removal (index + 1)
   in
   attempt_removal 0
 
-let is_report_safe_with_removal report =
-  is_report_safe report || can_be_made_safe_by_removal report
+let is_safe_with_removal report =
+  is_safe report || can_be_made_safe_by_removal report
 
 let () =
   let input_lines = Utils.read_file "./src/02/input.txt" in
@@ -72,7 +72,7 @@ let () =
   let safe_reports_count =
     List.fold_left
       (fun count report ->
-        if is_report_safe_with_removal report then count + 1 else count)
+        if is_safe_with_removal report then count + 1 else count)
       0 reports
   in
 

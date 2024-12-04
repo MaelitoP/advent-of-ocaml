@@ -1,14 +1,11 @@
 open Lib
 
-(* Define the pattern to match sequences like `mul(x1,x2)` *)
-let mul_pattern = Str.regexp "mul(\\([0-9]+\\),\\([0-9]+\\))"
+let mul_regex = Str.regexp "mul(\\([0-9]+\\),\\([0-9]+\\))"
 
-(* Function to extract and compute the sum of products *)
 let compute_mul_sum text =
   let rec extract_sum pos acc =
     try
-      (* Search for the next match starting from `pos` *)
-      let _ = Str.search_forward mul_pattern text pos in
+      let _ = Str.search_forward mul_regex text pos in
       let x1 = int_of_string (Str.matched_group 1 text) in
       let x2 = int_of_string (Str.matched_group 2 text) in
       let product = x1 * x2 in

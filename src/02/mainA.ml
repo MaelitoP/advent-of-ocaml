@@ -3,7 +3,6 @@
     A report is considered safe if:
       - It is strictly increasing or decreasing, and
       - The absolute differences between adjacent levels are in the range [1, 3].
-    Additionally, a report can be made safe by removing at most one level.
 
     Example input format:
     $ shuf -n 5 input.txt
@@ -45,7 +44,7 @@ let are_differences_within_range sequence =
   in
   check sequence
 
-let is_safe_report report =
+let is_safe report =
   (is_strictly_increasing report || is_strictly_decreasing report)
   && are_differences_within_range report
 
@@ -55,9 +54,8 @@ let () =
 
   let safe_reports_count =
     List.fold_left
-      (fun count report -> if is_safe_report report then count + 1 else count)
+      (fun count report -> if is_safe report then count + 1 else count)
       0 reports
   in
 
   Printf.printf "Number of safe reports: %d\n" safe_reports_count
-
