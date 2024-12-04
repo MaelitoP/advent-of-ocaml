@@ -7,3 +7,10 @@ let read_file filename =
     | None -> close_in chan ; List.rev lines
   in
   loop []
+
+let read_file_single filename =
+  let chan = open_in filename in
+  let content = really_input_string chan (in_channel_length chan) in
+  close_in chan;
+  content
+
