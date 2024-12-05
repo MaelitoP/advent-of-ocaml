@@ -4,7 +4,9 @@ let read_file filename =
   let rec loop lines =
     match try_read () with
     | Some s -> loop (s :: lines)
-    | None -> close_in chan ; List.rev lines
+    | None ->
+        close_in chan;
+        List.rev lines
   in
   loop []
 
@@ -13,4 +15,14 @@ let read_file_single filename =
   let content = really_input_string chan (in_channel_length chan) in
   close_in chan;
   content
+
+let split_file_content lines =
+  let rec split parts current = function
+    | [] -> List.rev (List.rev current :: parts)
+    | "" :: rest -> split (List.rev current :: parts) [] rest
+    | line :: rest -> split parts (line :: current) rest
+  in
+  match split [] [] lines with
+  | [ rules; updates ] -> (rules, updates)
+  | _ -> failwith "Invalid file format"
 
