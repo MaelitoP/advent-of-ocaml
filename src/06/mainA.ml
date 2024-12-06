@@ -8,11 +8,13 @@ end)
 
 type direction = Up | Right | Down | Left
 
-let turn_right dir =
-  match dir with Up -> Right | Right -> Down | Down -> Left | Left -> Up
+let turn_right = function
+  | Up -> Right
+  | Right -> Down
+  | Down -> Left
+  | Left -> Up
 
-let move (x, y) dir =
-  match dir with
+let move (x, y) = function
   | Up -> (x - 1, y)
   | Right -> (x, y + 1)
   | Down -> (x + 1, y)
@@ -38,25 +40,18 @@ let simulate_patrol grid guard_start =
   in
   loop guard_start Up
 
-let find_index_opt arr char =
-  let rec loop i =
-    if i >= Array.length arr then None
-    else if arr.(i) = char then Some i
-    else loop (i + 1)
-  in
-  loop 0
+let find_guard_start grid =
+  match
+    Array.mapi (fun i row -> (i, Utils.find_index_of_char row '^')) grid
+    |> Array.to_list
+    |> List.find_opt (fun (_, col_opt) -> Option.is_some col_opt)
+  with
+  | Some (row, Some col) -> (row, col)
+  | _ -> invalid_arg "Guard not found in the grid"
 
 let () =
   let filename = "src/06/input.txt" in
   let grid = Utils.load_file_as_2d_array filename in
-  let guard_start =
-    match
-      Array.mapi (fun i row -> (i, find_index_opt row '^')) grid
-      |> Array.to_list
-      |> List.find_opt (fun (_, col_opt) -> col_opt <> None)
-    with
-    | Some (row, Some col) -> (row, col)
-    | _ -> failwith "Guard not found"
-  in
+  let guard_start = find_guard_start grid in
   let distinct_positions = simulate_patrol grid guard_start in
   Printf.printf "Distinct positions visited: %d\n" distinct_positions
