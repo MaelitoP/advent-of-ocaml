@@ -71,9 +71,17 @@ let find_obstruction_positions grid guard_start patrol_path =
       else valid_positions)
     PositionSet.empty patrol_path
 
+let find_index_of_char arr char =
+  let rec loop i =
+    if i >= Array.length arr then None
+    else if arr.(i) = char then Some i
+    else loop (i + 1)
+  in
+  loop 0
+
 let find_guard_start grid =
   match
-    Array.mapi (fun i row -> (i, Utils.find_index_of_char row '^')) grid
+    Array.mapi (fun i row -> (i, find_index_of_char row '^')) grid
     |> Array.to_list
     |> List.find_opt (fun (_, col_opt) -> Option.is_some col_opt)
   with

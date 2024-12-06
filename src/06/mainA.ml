@@ -40,9 +40,17 @@ let simulate_patrol grid guard_start =
   in
   loop guard_start Up
 
+let find_index_of_char arr char =
+  let rec loop i =
+    if i >= Array.length arr then None
+    else if arr.(i) = char then Some i
+    else loop (i + 1)
+  in
+  loop 0
+
 let find_guard_start grid =
   match
-    Array.mapi (fun i row -> (i, Utils.find_index_of_char row '^')) grid
+    Array.mapi (fun i row -> (i, find_index_of_char row '^')) grid
     |> Array.to_list
     |> List.find_opt (fun (_, col_opt) -> Option.is_some col_opt)
   with

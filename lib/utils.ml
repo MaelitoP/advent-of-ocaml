@@ -41,11 +41,3 @@ let load_file_as_2d_array filename =
   let lines = read_lines [] in
   Array.of_list lines
 
-let find_index_of_char arr char =
-  let rec loop i =
-    if i >= Array.length arr then None
-    else if arr.(i) = char then Some i
-    else loop (i + 1)
-  in
-  loop 0
-
