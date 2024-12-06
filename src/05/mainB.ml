@@ -52,6 +52,7 @@ let detect_cycle graph =
   in
   find_cycle (Hashtbl.fold (fun k _ acc -> k :: acc) graph [])
 
+(* Function for topological sorting (Kahn's algorithm) *)
 let topological_sort graph =
   let in_degree = Hashtbl.create 100 in
   Hashtbl.iter
@@ -85,6 +86,7 @@ let topological_sort graph =
   if List.length !sorted = Hashtbl.length graph then Some (List.rev !sorted)
   else None (* Cycle detected *)
 
+(* Function to check if an update is in the correct order *)
 let is_correct_order update topo_order =
   let pos_map = Hashtbl.create 100 in
   List.iteri (fun idx x -> Hashtbl.add pos_map x idx) topo_order;
