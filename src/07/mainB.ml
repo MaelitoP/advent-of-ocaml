@@ -8,39 +8,39 @@ let parse_line line =
       |> List.map int_of_string
     in
     (test_value, numbers)
-  with _ -> failwith ("Failed to parse line: " ^ line)
+  with
+  | _ -> failwith ("Failed to parse line: " ^ line)
 
-let rec evaluate_expression numbers operators =
-  match (numbers, operators) with
-  | [ n ], [] -> n
-  | n1 :: n2 :: rest_nums, op :: rest_ops ->
-      let partial_result =
-        match op with
-        | '+' -> n1 + n2
-        | '*' -> n1 * n2
-        | '|' -> int_of_string (string_of_int n1 ^ string_of_int n2)
-        | _ -> failwith "Invalid operator"
-      in
-      evaluate_expression (partial_result :: rest_nums) rest_ops
-  | _ -> failwith "Invalid numbers or operators"
+let concat n1 n2 =
+  int_of_string (string_of_int n1 ^ string_of_int n2)
 
-let rec generate_operator_combinations len =
-  if len = 0 then [ [] ]
+(* Recursive function with pruning and memoization *)
+let rec evaluate_recursive numbers target index current_result memo =
+  if index = List.length numbers then
+    current_result = target
   else
-    let shorter_combinations = generate_operator_combinations (len - 1) in
-    List.concat
-      [
-        List.map (fun ops -> '+' :: ops) shorter_combinations;
-        List.map (fun ops -> '*' :: ops) shorter_combinations;
-        List.map (fun ops -> '|' :: ops) shorter_combinations;
-      ]
+    (* Check memoization table *)
+    if Hashtbl.mem memo (index, current_result) then
+      Hashtbl.find memo (index, current_result)
+    else
+      let next_num = List.nth numbers index in
+      let valid = ref false in
+      if current_result + next_num <= target then
+        valid := !valid || evaluate_recursive numbers target (index + 1) (current_result + next_num) memo;
+      if current_result * next_num <= target then
+        valid := !valid || evaluate_recursive numbers target (index + 1) (current_result * next_num) memo;
+      let concat_result = concat current_result next_num in
+      if concat_result <= target then
+        valid := !valid || evaluate_recursive numbers target (index + 1) concat_result memo;
+      (* Store result in memoization table *)
+      Hashtbl.add memo (index, current_result) !valid;
+      !valid
 
 let is_equation_valid test_value numbers =
-  let num_operators = List.length numbers - 1 in
-  let operator_combinations = generate_operator_combinations num_operators in
-  List.exists
-    (fun operators -> evaluate_expression numbers operators = test_value)
-    operator_combinations
+  if List.length numbers = 0 then false
+  else
+    let memo = Hashtbl.create 10000 in
+    evaluate_recursive numbers test_value 1 (List.hd numbers) memo
 
 let process_file filename =
   let sum = ref 0 in
@@ -48,9 +48,10 @@ let process_file filename =
   try
     while true do
       let line = input_line ic in
-      if String.trim line <> "" then
+      if String.trim line <> "" then (
         let test_value, numbers = parse_line line in
         if is_equation_valid test_value numbers then sum := !sum + test_value
+      )
     done;
     !sum
   with End_of_file ->
@@ -61,3 +62,4 @@ let () =
   let filename = "src/07/input.txt" in
   let result = process_file filename in
   Printf.printf "Sum of valid test values: %d\n" result
+
