@@ -3,3 +3,8 @@
  (modules MainA)
  (libraries lib))
 
+(executable
+ (name mainB)
+ (modules MainB)
+ (libraries lib))
+
